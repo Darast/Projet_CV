@@ -6,7 +6,7 @@ using namespace std;
 using namespace cv;
 
 
-#define disp false
+#define disp true
 
 void process(const char* imsname, const char* imdname){
   Mat ims = imread(imsname, CV_LOAD_IMAGE_COLOR), HSV; // Read the given image in color
@@ -24,14 +24,15 @@ void process(const char* imsname, const char* imdname){
   inRange(HSV, Scalar(iLowH, iLowS, iLowV), Scalar(iHighH, iHighS, iHighV), imth);
 
   // Apply various morphological operations to clean up the mask from basic noise
-  Mat ell7 = getStructuringElement(MORPH_ELLIPSE, Size(7, 7));
+  Mat rect9 = getStructuringElement(MORPH_RECT, Size(9, 9));
   Mat ell5 = getStructuringElement(MORPH_ELLIPSE, Size(5, 5));
-  erode(imth, imth, ell7);
+  erode(imth, imth, rect9);
   dilate(imth, imth, ell5);
-  morphologyEx(imth, imth, MORPH_CLOSE, ell5, Point(-1, -1), 1, BORDER_CONSTANT, Scalar(0));
+  morphologyEx(imth, imth, MORPH_CLOSE, ell5, Point(-1, -1), 1, BORDER_CONSTANT, Scalar(255));
 
-  if (disp)
+  if (disp) {
     imshow("Threshold mask after morph", imth);
+  }
 
   //* @HULL
   vector<vector<Point> > contours; // Extract the contours from the binary mask
@@ -52,6 +53,8 @@ void process(const char* imsname, const char* imdname){
       drawContours(mask, hulls, i, color, CV_FILLED);
     }
   }
+  Mat rect3 = getStructuringElement(MORPH_ELLIPSE, Size(3, 3));
+  dilate(mask, mask, rect3);
   //@HULL */
 
   gettimeofday( &tf, NULL);
