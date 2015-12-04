@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <fcntl.h>
 #include <cstdio>
 
@@ -13,6 +14,12 @@ using namespace std;
 
 void process(const char* imsname, const int thmin, const int thmax){
   Mat ims = imread(imsname, CV_LOAD_IMAGE_COLOR), HSV; // Read the given image in color
+
+  struct timeval t0, tf;
+  unsigned long dt;
+  gettimeofday( &t0, NULL);
+
+  //imshow("Original image", ims);
   cvtColor(ims, HSV, CV_BGR2HSV); // Convert to HSV color space: [0,180]x[0,255]x[0,255]
   
   Mat HSVchannels[3];
@@ -26,57 +33,47 @@ void process(const char* imsname, const int thmin, const int thmax){
   //imshow("Hmax", Hmax);
 
   Hth = (Hmax & Hmin);
-  //imshow("Thresholded hue", Hth);
-  imshow("Original image", ims);
+  //imshow("Thresholded hue before morph", Hth);
 
-  /*Mat Heq;
-  equalizeHist(H, Heq);
-  imwrite("Heq.png", Heq);
+  Mat seO = getStructuringElement(MORPH_RECT, Size(5, 5));
+  morphologyEx(Hth, Hth, MORPH_OPEN, seO, Point(-1, -1), 1, BORDER_CONSTANT, Scalar(0));
+  morphologyEx(Hth, Hth, MORPH_CLOSE, seO, Point(-1, -1), 1, BORDER_CONSTANT, Scalar(0));
+  imshow("Thresholded hue after morph", Hth);
 
-  threshold(Heq, Hmin, thmin, 255, THRESH_BINARY);
-  //imshow("Hmin", Hmin);
-  threshold(Heq, Hmax, thmax, 255, THRESH_BINARY_INV);
-  //imshow("Hmax", Hmax);
-
-  Hth = (Hmax & Hmin);
-  imshow("Thresholded hue", Hth);
-  
-  Mat immask2;
-  ims.copyTo(immask2, Hth);
-  imshow("Thresholded image", immask2); */
-  
-  Mat imcopy = ims.clone();
+  //* @HULL
   vector<vector<Point> > contours;
   vector<Vec4i> hierarchy;
 
-  findContours( Hth, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0) );
+  findContours( Hth, contours, hierarchy, CV_RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(0, 0) );  
+  cout << contours.size() << " contours have been identified." << endl;
 
-  vector<vector<Point> >hull( contours.size() );
-  for( size_t i = 0; i < contours.size(); i++ ){
-    convexHull( Mat(contours[i]), hull[i], false ); }
-
-  double amax = 0;
-  int imax = 0;
-  for( size_t i = 0; i< contours.size(); i++ ){
-    double area = contourArea(hull[i]);
-    if (amax < area){
-      amax = area;
-      imax = (int) i;
-    }
-  }
-  
+  double ath = ims.cols * ims.rows / 4;
+  vector< vector<Point> > hulls(contours.size());
   Mat mask = Mat::zeros( Hth.size(), CV_8UC1 );
   Scalar color = Scalar(255);
-  //drawContours( drawing, contours, (int)i, color, 1, 8, vector<Vec4i>(), 0, Point() );
-  drawContours(mask, hull, imax, color, CV_FILLED);//, 8, vector<Vec4i>(), 0, Point() );
-  //imshow("Hull", mask );
 
+  for( size_t i = 0; i < contours.size(); i++ ){
+    double area = contourArea(contours[i]);
+    if (ath < area){
+      convexHull( Mat(contours[i]), hulls[i], false );    
+      drawContours(mask, hulls, i, color, CV_FILLED);
+    }
+  }
+  //@HULL */
+
+  gettimeofday( &tf, NULL);
+  dt = (tf.tv_sec - t0.tv_sec) * 1000000L + tf.tv_usec - t0.tv_usec;
+  cout << "Processing time of " << dt << " microseconds" << endl;
+
+  //* @SHOW
+  imshow("Original image", ims);
+  //imshow("Mask", mask );
   Mat imth;
   ims.copyTo(imth, mask);
-  imshow("Thresholded image", imth);
+  imshow("Extracted part of the image", imth);
+  // @SHOW */
   waitKey();
 }
-
 
 void usage(const char* s){
 	cerr<<"Usage: " << s << " ims-name th-min th-max\n" << endl;
