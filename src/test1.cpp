@@ -66,6 +66,7 @@ void process(const char* imsname, const char* imdname){
     imshow("Extracted part of the image", imcut);
     waitKey();
   }
+
   imwrite(imdname, mask);
 }
 
