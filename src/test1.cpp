@@ -33,7 +33,7 @@ void process(const char* imsname, const char* imdname){
   erode(imth, imth, ell7);
   dilate(imth, imth, ell5);
   morphologyEx(imth, imth, MORPH_CLOSE, ell5, Point(-1, -1), 1, BORDER_CONSTANT, Scalar(0));
-  imshow("Thresholded hue after morph", imth);
+  //imshow("Thresholded hue after morph", imth);
 
   //* @HULL
   vector<vector<Point> > contours;
@@ -61,11 +61,11 @@ void process(const char* imsname, const char* imdname){
   cout << "Processing time of " << dt << " microseconds" << endl;
 
   //* @SHOW
-  imshow("Original image", ims);
+  //imshow("Original image", ims);
   //imshow("Mask", mask );
   Mat imcut;
   ims.copyTo(imcut, mask);
-  imshow("Extracted part of the image", imcut);
+  //imshow("Extracted part of the image", imcut);
 
   imwrite(imdname, mask);
   // @SHOW */
