@@ -28,7 +28,7 @@ void process(const char* imsname, const char* imdname){
   Mat ell5 = getStructuringElement(MORPH_ELLIPSE, Size(5, 5));
   erode(imth, imth, ell7);
   dilate(imth, imth, ell5);
-  morphologyEx(imth, imth, MORPH_CLOSE, ell5, Point(-1, -1), 1, BORDER_CONSTANT, Scalar(0));
+  // morphologyEx(imth, imth, MORPH_CLOSE, ell5, Point(-1, -1), 1, BORDER_CONSTANT, Scalar(0));
 
   if (disp)
     imshow("Threshold mask after morph", imth);
