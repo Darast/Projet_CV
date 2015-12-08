@@ -41,11 +41,11 @@ void process(const char* imsname, const char* imdname){
   inRange(HSV, Scalar(iLowH, iLowS, iLowV), Scalar(iHighH, iHighS, iHighV), imth);
 
   // Apply various morphological operations to clean up the mask from coarse noise
-  morphologyEx(imth, imth, MORPH_OPEN, rect, Point(-1, -1), 1, BORDER_CONSTANT, Scalar(255));
+  morphologyEx(imth, imth, MORPH_OPEN, rect, Point(-1, -1), 1, BORDER_REPLICATE, Scalar(0));
   if (disp) {
     imshow("Threshold mask after openning", imth);
   }
-  morphologyEx(imth, imth, MORPH_CLOSE, rect, Point(-1, -1), 1, BORDER_CONSTANT, Scalar(255));
+  morphologyEx(imth, imth, MORPH_CLOSE, rect, Point(-1, -1), 1, BORDER_REPLICATE, Scalar(0));
 
   if (disp) {
     imshow("Threshold mask after closing", imth);
