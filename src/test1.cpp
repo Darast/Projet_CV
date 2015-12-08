@@ -9,6 +9,11 @@ using namespace cv;
 void process(const char* imsname, const char* imdname){
   Mat ims = imread(imsname, CV_LOAD_IMAGE_COLOR), HSV; // Read the given image in color
 
+  if (!ims.data()) {
+    cerr << "Aborting calibration..." << endl;
+    exit (EXIT_FAILURE);
+  }
+
   struct timeval t0, tf; // Objects used to time the whole process
   unsigned long dt;
   gettimeofday( &t0, NULL);
@@ -21,7 +26,7 @@ void process(const char* imsname, const char* imdname){
   Mat imth; // Apply those thresholds on the HSV image to get a binary mask
   inRange(HSV, Scalar(iLowH, iLowS, iLowV), Scalar(iHighH, iHighS, iHighV), imth);
 
-  // Apply various morphological operations to clean up the mask from basic noise
+  // Apply various morphological operations to clean up the mask from coarse noise
   Mat rect7 = getStructuringElement(MORPH_RECT, Size(7, 7));
   Mat ell5 = getStructuringElement(MORPH_ELLIPSE, Size(5, 5));
   erode(imth, imth, rect7);
@@ -32,8 +37,8 @@ void process(const char* imsname, const char* imdname){
     imshow("Threshold mask after morph", imth);
   }*/
 
-  //* @HULL
-  vector<vector<Point> > contours; // Extract the contours from the binary mask
+  // Extract the contours from the binary mask
+  vector<vector<Point> > contours;
   vector<Vec4i> hierarchy;
   findContours( imth, contours, hierarchy, CV_RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(0, 0) );  
 
@@ -58,7 +63,6 @@ void process(const char* imsname, const char* imdname){
   // Apply a final dilation to expand the hull by one pixel in each direction
   Mat rect3 = getStructuringElement(MORPH_ELLIPSE, Size(3, 3));
   dilate(mask, mask, rect3);
-  //@HULL */
 
   gettimeofday( &tf, NULL);
   dt = (tf.tv_sec - t0.tv_sec) * 1000000L + tf.tv_usec - t0.tv_usec;
