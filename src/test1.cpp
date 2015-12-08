@@ -22,23 +22,37 @@ void process(const char* imsname, const char* imdname){
   gettimeofday( &t0, NULL);
 
   cvtColor(ims, HSV, CV_BGR2HSV); // Convert to HSV color space: [0,180]x[0,255]x[0,255]
+
   int iLowH = 23, iHighH = 63;    // Intervals used to threshold the channels
   int iLowS = 38, iHighS = 255;   // These values should filter most of the non-field parts of the image
-  int iLowV = 25, iHighV = 133;
+  int iLowV = 25, iHighV = 200;
   
   Mat imth; // Apply those thresholds on the HSV image to get a binary mask
   inRange(HSV, Scalar(iLowH, iLowS, iLowV), Scalar(iHighH, iHighS, iHighV), imth);
 
+ if (disp) {
+    imshow("Threshold pur", imth);
+  }
+
   // Apply various morphological operations to clean up the mask from coarse noise
-  Mat rect7 = getStructuringElement(MORPH_RECT, Size(7, 7));
+  Mat rect7 = getStructuringElement(MORPH_RECT, Size(7,7 ));
   Mat ell5 = getStructuringElement(MORPH_ELLIPSE, Size(5, 5));
   erode(imth, imth, rect7);
+  if (disp) {
+    imshow("Threshold mask after erode", imth);
+  }
+  
   dilate(imth, imth, ell5);
-  morphologyEx(imth, imth, MORPH_CLOSE, ell5, Point(-1, -1), 1, BORDER_CONSTANT, Scalar(255));
+  
+  if (disp) {
+    imshow("Threshold mask after dilate", imth);
+  }
 
-  /*if (disp) {
-    imshow("Threshold mask after morph", imth);
-  }*/
+  // morphologyEx(imth, imth, MORPH_CLOSE, ell5, Point(-1, -1), 1, BORDER_CONSTANT, Scalar(255));
+
+  // if (disp) {
+  //   imshow("Threshold mask after closing", imth);
+  // }
 
   // Extract the contours from the binary mask
   vector<vector<Point> > contours;
@@ -72,8 +86,8 @@ void process(const char* imsname, const char* imdname){
   cout << "Processing time of " << dt << " microseconds" << endl;
 
   if (disp) {
-    // imshow("Original image", ims);
-    // imshow("Mask", mask );
+    imshow("Original image", ims);
+    imshow("Mask", mask );    
     Mat imcut;
     ims.copyTo(imcut, mask);
     imshow("Extracted part of the image", imcut);
