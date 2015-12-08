@@ -21,7 +21,7 @@ log1_verite[5]="../data/verites/log1/163-rgb.png"
 
 for (( i = 0; i < 6; i++ )); do
 	../build/terrain $path${log1[$i]} $imd 
-	./difference $imd ${log1_verite[$i]}
+	../build/difference $imd ${log1_verite[$i]}
 done
 
 ## Log 2
@@ -35,7 +35,7 @@ log2_verite[2]="../data/verites/log2/175-rgb.png"
 
 for (( i = 0; i < 3; i++ )); do
 	../build/terrain $path${log2[$i]} $imd 
-	./difference $imd ${log2_verite[$i]}
+	../build/difference $imd ${log2_verite[$i]}
 done
 
 ## Log 
@@ -47,7 +47,7 @@ log3_verite[1]="../data/verites/log3/143-rgb.png"
 
 for (( i = 0; i < 2; i++ )); do
 	../build/terrain $path${log3[$i]} $imd 
-	./difference $imd ${log3_verite[$i]}
+	../build/difference $imd ${log3_verite[$i]}
 done
 
 ## Log 
@@ -59,5 +59,5 @@ log4_verite[1]="../data/verites/log4/46-rgb.png"
 
 for (( i = 0; i < 2; i++ )); do
 	../build/terrain $path${log4[$i]} $imd 
-	./difference $imd ${log4_verite[$i]}
+	../build/difference $imd ${log4_verite[$i]}
 done

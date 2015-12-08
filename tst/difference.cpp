@@ -46,10 +46,11 @@ process(const char* imsname_1, const char* imsname_2)
     cout << ", False positive: " << faux_positif;
     cout << ", False negative: " << faux_negatif << endl;
     cout << "Matching: " << percent << "%"; 
-    cout << ", of which false positive: " << percent_positif << "%"; 
-    cout << ", of which false negative: " << percent_negatif << "%" << endl << endl; 
+    cout << ", False positive: " << percent_positif << "%"; 
+    cout << ", False negative: " << percent_negatif << "%" << endl << endl; 
 
-    imshow("resultat", result);
+    imwrite("Result.png", result);
+    imshow("Result", result);
     waitKey();
 } 
 
