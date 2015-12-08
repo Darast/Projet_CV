@@ -6,8 +6,6 @@ using namespace std;
 using namespace cv;
 
 
-#define disp true
-
 void process(const char* imsname, const char* imdname){
   Mat ims = imread(imsname, CV_LOAD_IMAGE_COLOR), HSV; // Read the given image in color
 
@@ -24,35 +22,40 @@ void process(const char* imsname, const char* imdname){
   inRange(HSV, Scalar(iLowH, iLowS, iLowV), Scalar(iHighH, iHighS, iHighV), imth);
 
   // Apply various morphological operations to clean up the mask from basic noise
-  Mat rect9 = getStructuringElement(MORPH_RECT, Size(9, 9));
+  Mat rect7 = getStructuringElement(MORPH_RECT, Size(7, 7));
   Mat ell5 = getStructuringElement(MORPH_ELLIPSE, Size(5, 5));
-  erode(imth, imth, rect9);
+  erode(imth, imth, rect7);
   dilate(imth, imth, ell5);
   morphologyEx(imth, imth, MORPH_CLOSE, ell5, Point(-1, -1), 1, BORDER_CONSTANT, Scalar(255));
 
-  if (disp) {
+  /*if (disp) {
     imshow("Threshold mask after morph", imth);
-  }
+  }*/
 
   //* @HULL
   vector<vector<Point> > contours; // Extract the contours from the binary mask
   vector<Vec4i> hierarchy;
   findContours( imth, contours, hierarchy, CV_RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(0, 0) );  
 
-  double ath = ims.cols * ims.rows / 4; // Area threshold: one quarter of the total image
-  vector< vector<Point> > hulls(contours.size());
+  vector< vector<Point> > hulls(1); // Pseudo-container for convex hull contours
   Mat mask = Mat::zeros( imth.size(), CV_8UC1 ); // Field mask : start with a black-filled image
   Scalar color = Scalar(255); // Pure white
 
-  // Find contours having an area bigger than the area threshold
-  // and fill the mask based on their convex hulls
+  // Find the contour with the bigger area
+  double amax = 0, area;
+  int imax = -1;
   for( size_t i = 0; i < contours.size(); i++ ){
-    double area = contourArea(contours[i]);
-    if (ath < area){
-      convexHull( Mat(contours[i]), hulls[i], false );    
-      drawContours(mask, hulls, i, color, CV_FILLED);
+    area = contourArea(contours[i]);
+    if (amax < area){
+      imax = i;
+      amax = area;
     }
   }
+  // Fill the mask based on its convex hulls
+  convexHull( Mat(contours[imax]), hulls[0], false );
+  drawContours(mask, hulls, 0, color, CV_FILLED);
+
+  // Apply a final dilation to expand the hull by one pixel in each direction
   Mat rect3 = getStructuringElement(MORPH_ELLIPSE, Size(3, 3));
   dilate(mask, mask, rect3);
   //@HULL */
@@ -61,14 +64,14 @@ void process(const char* imsname, const char* imdname){
   dt = (tf.tv_sec - t0.tv_sec) * 1000000L + tf.tv_usec - t0.tv_usec;
   cout << "Processing time of " << dt << " microseconds" << endl;
 
-  if (disp) {
+  /*if (disp) {
     imshow("Original image", ims);
     imshow("Mask", mask );
     Mat imcut;
     ims.copyTo(imcut, mask);
     imshow("Extracted part of the image", imcut);
     waitKey();
-  }
+  }*/
 
   imwrite(imdname, mask);
 }
