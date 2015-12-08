@@ -17,13 +17,13 @@ void process(const char* imsname, const char* imdname){
     exit (EXIT_FAILURE);
   }
 
+
   int iLowH = 23, iHighH = 63;    // Intervals used to threshold the channels
   int iLowS = 38, iHighS = 255;   // These values should filter most of the non-field parts of the image
   int iLowV = 25, iHighV = 133;
 
   Mat imth; // Apply those thresholds on the HSV image to get a binary mask
   Mat rect; // Kernel for morpholical operation
-  Mat rect3 = getStructuringElement(MORPH_ELLIPSE, Size(3, 3)); // Kernel for final dilatation
 
   // Vector for extract the contours from the binary mask
   vector<vector<Point> > contours;
@@ -39,20 +39,25 @@ void process(const char* imsname, const char* imdname){
   cvtColor(ims, HSV, CV_BGR2HSV); // Convert to HSV color space: [0,180]x[0,255]x[0,255]
   inRange(HSV, Scalar(iLowH, iLowS, iLowV), Scalar(iHighH, iHighS, iHighV), imth);
 
+  imwrite("Tresholding.png", imth);
+
   // Apply various morphological operations to clean up the mask from coarse noise
-  for (int i = 1; i<15; i+=2)
+  for (int i = 1; i<7; i+=2)
   {
       rect = getStructuringElement(MORPH_RECT, Size(i, i));
       morphologyEx(imth, imth, MORPH_OPEN, rect, Point(-1, -1), 1, BORDER_REPLICATE, Scalar(0));
 
       if (disp)
-        imshow("Threshold mask after OPEN", imth);
+      {
+        imwrite("Threshold mask after OPEN.png", imth);
+      }
 
       morphologyEx(imth, imth, MORPH_CLOSE, rect, Point(-1, -1), 1, BORDER_REPLICATE, Scalar(0));
 
       if (disp)
       {
-        imshow("Threshold mask after morph", imth);
+        imwrite("Threshold mask after Closing.png", imth);
+        imshow("Threshold mask after Closing.png", imth);
         waitKey(0);
       }
   }
@@ -75,8 +80,7 @@ void process(const char* imsname, const char* imdname){
   convexHull( Mat(contours[imax]), hulls[0], false );
   drawContours(mask, hulls, 0, color, CV_FILLED);
 
-  // Apply a final dilation to expand the hull by one pixel in each direction
-  dilate(mask, mask, rect3);
+  imwrite("DrawContours.png", mask);
 
   gettimeofday( &tf, NULL);
   dt = (tf.tv_sec - t0.tv_sec) * 1000000L + tf.tv_usec - t0.tv_usec;
