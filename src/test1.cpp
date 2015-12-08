@@ -6,7 +6,7 @@ using namespace std;
 using namespace cv;
 
 
-#define disp true
+#define disp false
 
 void process(const char* imsname, const char* imdname){
   Mat ims = imread(imsname, CV_LOAD_IMAGE_COLOR), HSV; // Read the given image in color
@@ -24,7 +24,7 @@ void process(const char* imsname, const char* imdname){
   inRange(HSV, Scalar(iLowH, iLowS, iLowV), Scalar(iHighH, iHighS, iHighV), imth);
 
   // Apply various morphological operations to clean up the mask from basic noise
-  Mat rect9 = getStructuringElement(MORPH_RECT, Size(9, 9));
+  Mat rect9 = getStructuringElement(MORPH_RECT, Size(7, 7));
   Mat ell5 = getStructuringElement(MORPH_ELLIPSE, Size(5, 5));
   erode(imth, imth, rect9);
   dilate(imth, imth, ell5);

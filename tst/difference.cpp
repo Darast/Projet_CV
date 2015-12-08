@@ -42,12 +42,12 @@ process(const char* imsname_1, const char* imsname_2)
     float percent_positif = (faux_positif*100.0/area);
     float percent_negatif = (faux_negatif*100.0/area);
 
-    cout << "Nombre de pixels de différence : " << count;
-    cout << ", Faux positifs: " << faux_positif;
-    cout << ", Faux négatifs: " << faux_negatif << endl;
+    cout << "Number of different pixels: " << count;
+    cout << ", False positive: " << faux_positif;
+    cout << ", False negative: " << faux_negatif << endl;
     cout << "Matching: " << percent << "%"; 
-    cout << ", dont faux positifs: " << percent_positif << "%"; 
-    cout << ", dont faux négatifs: " << percent_negatif << "%" << endl << endl; 
+    cout << ", of which false positive: " << percent_positif << "%"; 
+    cout << ", of which false negative: " << percent_negatif << "%" << endl << endl; 
 
     imshow("resultat", result);
     waitKey();

@@ -26,40 +26,37 @@ void process(const char* ims_name, const char* th_1, const char* th_2){
 	Mat H = HSVchannels[0];
 
 	Mat H_range(H.size(), CV_8UC1);
-	Mat H_thresh;
-	
-	// for(int i = 0; i < H.rows; ++i){
-	// 	for(int j = 0; j < H.cols; ++j){
-	// 		uchar val = H.at<uchar>(i,j);
-	// 		H_range.at<uchar>(i,j) = ((val < th1) || (val > th2))? 0 : 255;
-	// 	}
-	// }
+	int H_hist[180] = {0};
+	uchar max_index = 0;
 
-	Mat HSV_ranged[3];
-	int low[3] = {th1, 100, 100};
-	int up[3] = {th2, 200, 200};
+	int mat[5][5] = {{1,1,2,3,4}, 
+					{5,6,78,9,2},
+					{2,36,5,3,5},
+					{1,5,5,2,2},
+					{7,8,22,3,2}};
 
-	inRange(HSVchannels, low, up, HSV_ranged);
+	for(int i = 0; i < H.rows; ++i){
+		for(int j = 0; j < H.cols; ++j){
+			uchar val = H.at<uchar>(i,j);
+			++H_hist[val];
+			if(H_hist[max_index] < H_hist[val]){
+				max_index = val;
+				cout << (int) max_index << endl;			
+			}
+		}
+	}
 
-	Mat img_hsv_ranged;
-	merge(HSV_ranged, 3, img_hsv_ranged);
+	cout << "max_index : " << (int) max_index << endl;
 
-	imshow("img_hsv_ranged", img_hsv_ranged);
-	// Mat H_open;
-	// int morph_size = 2;
-	// Mat element = getStructuringElement(MORPH_ELLIPSE, Size(2*morph_size+1, 2*morph_size+1));
-	// morphologyEx(H_range, H_open, MORPH_OPEN, element);
-	// imshow("H_open", H_open);
+	for(int i = 0; i < 180; i++){
+		cout << "(" << i << ")" << (int) H_hist[i] << " ";
+	}
 
-	// adaptiveThreshold(H_range, H_thresh, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, 201, 8);
-	
-	// imshow("H_range", H_range);
-	// imshow("H_thresh", H_thresh);
-	// imwrite("H.png", H);
+	Mat H_th;
+	inRange(H, max_index-10, max_index+20, H_th);
 
-	// imshow("Canny", detected_edges);
+	imshow("H_th", H_th);
 	waitKey();
-
 }
 
 
