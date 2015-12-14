@@ -4,7 +4,7 @@ OBJECTS_DIR = .obj
 TEMPLATE = app
 CONFIG += qt warn_on release thread
 SOURCES = terrain_efficace.cpp
-TARGET = ../../build/terrain
+TARGET = ../../build/terrain_efficace
 CONFIG -= app_bundle
 
 INCLUDEPATH += /usr/include/opencv2

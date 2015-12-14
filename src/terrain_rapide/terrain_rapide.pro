@@ -4,7 +4,7 @@ OBJECTS_DIR = .obj
 TEMPLATE = app
 CONFIG += qt warn_on release thread
 SOURCES = terrain_rapide.cpp
-TARGET = ../../build/terrain
+TARGET = ../../build/terrain_rapide
 CONFIG -= app_bundle
 
 INCLUDEPATH += /usr/include/opencv2
